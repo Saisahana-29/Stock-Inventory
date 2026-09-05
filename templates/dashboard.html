@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>StockFlow Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="sidebar">
+        <h2>📦 StockFlow</h2>
+
+        <a href="/dashboard">Dashboard</a>
+        <a href="/products">Products</a>
+        <a href="/add-product">Add Product</a>
+        <a href="/suppliers">Suppliers</a>
+        <a href="/">Logout</a>
+    </div>
+
+    <div class="main">
+
+        <h1>Inventory Dashboard</h1>
+
+        <div class="cards">
+
+            <div class="card">
+                <h2>{{ total_products }}</h2>
+                <p>Total Products</p>
+            </div>
+
+            <div class="card">
+                <h2>{{ low_stock }}</h2>
+                <p>Low Stock</p>
+            </div>
+
+            <div class="card">
+                <h2>{{ total_suppliers }}</h2>
+                <p>Suppliers</p>
+            </div>
+
+            <div class="card">
+                <h2>₹{{ inventory_value }}</h2>
+                <p>Inventory Value</p>
+            </div>
+
+        </div>
+
+        <h2 style="margin-top:40px;">Category Analytics</h2>
+
+<div class="charts">
+
+    <div class="chart-box">
+        <canvas id="categoryChart"></canvas>
+    </div>
+
+    <div class="chart-box">
+        <canvas id="pieChart"></canvas>
+    </div>
+
+</div>
+<h2 style="margin-top:35px;">Recent Products</h2>
+
+<table class="product-table">
+
+    <tr>
+        <th>Product</th>
+        <th>Category</th>
+        <th>Qty</th>
+        <th>Status</th>
+    </tr>
+
+    {% for p in recent_products %}
+    <tr>
+
+        <td>{{ p.name }}</td>
+
+        <td>{{ p.category }}</td>
+
+        <td>{{ p.quantity }}</td>
+
+        <td>
+            {% if p.quantity < 10 %}
+                🔴 Low Stock
+            {% else %}
+                🟢 In Stock
+            {% endif %}
+        </td>
+
+    </tr>
+    {% endfor %}
+
+</table>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const labels = {{ chart_labels | safe }};
+const values = {{ chart_values | safe }};
+
+new Chart(document.getElementById("categoryChart"), {
+    type: "bar",
+    data: {
+        labels: labels,
+        datasets: [{
+            label: "Products",
+            data: values,
+            backgroundColor: "#2563eb",
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+new Chart(document.getElementById("pieChart"), {
+    type: "pie",
+    data: {
+        labels: labels,
+        datasets: [{
+            data: values,
+            backgroundColor: [
+                "#2563eb",
+                "#7c3aed",
+                "#f59e0b",
+                "#10b981"
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+</script>
+</body>
+</html>
